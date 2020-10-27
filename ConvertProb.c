@@ -99,19 +99,29 @@ unsigned int hex_to_uint(char *input){
     // Declare result and set to zero
     unsigned int res = 0;
     // Declare and set multiplier to 1
-
+    unsigned int mult = 1;
     // Declare iterator
-
+    int i;
     // Loop through value part of input string
-
+    for( i = 2; i < strlen(input); i++) {
         // If between 0 and 9 add 0 to 9 to res with multiplier
-
+        if(*(input + i) >= 0 && *(input + i) <= 9) {
+            res += ( *(input + i) * mult); 
+        }
+    
         // If between A and F add 10 to 15 to res with multiplier
-
+        if(*(input + i) >= 65 && *(input + i) <= 70) {
+            res += (( *(input + i) - 55) * mult); 
+        }
         // Error - exit
-
+        else {
+            printf("Error in hex_to_uint(). Exiting.\n");
+            exit(0);
+        }
+        
         // Advance multiplier to next position value
-
+        mult *= 10;
+    }
     return res;
 }
 
@@ -123,7 +133,7 @@ unsigned int hex_to_uint(char *input){
 unsigned int dec_to_uint(char *input){
     // Declare result and set to zero
     unsigned int res = 0;
-
+    
     return res;
 }
 
@@ -135,6 +145,8 @@ unsigned int dec_to_uint(char *input){
 unsigned int oct_to_uint(char *input){
     // Declare result and set to zero
     unsigned int res = 0;
+
+
 
     return res;
 }
