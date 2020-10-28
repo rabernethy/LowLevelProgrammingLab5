@@ -118,21 +118,14 @@ void menu(){
     return;
 }
 
-
-/*
-    This function should only use bitwise operators and
-    relational operators
-*/
 // Add operation using only bitwise operators
 int _add(int a, int b){
     // Loop until b is zero
-
-        // Find carry 1 bits - a AND b assign to carry
-
-        // Find non carry 1 bits - a XOR b assign to a
-
-        // Multiply carry by 2 by shift and assign to b
-
+    while(b != 0) {
+        int c = a & b; /* carry bit */
+        a = a ^ b; /* add stuff together */
+        b = c << 1; /* shift everything over */
+    }
     return a;
 }
 
@@ -145,11 +138,14 @@ int _add(int a, int b){
 int add(int a, int b){
     // Declare int for result
     int res = 0;
-    // Call to _add() a and b and assign to result
-
+    res = _add(a,b);
     // Check for overflow - look at page 90 in book
-
-    // Check for underflow - look at page 90 in book
+    int neg_over = a <  0 && b < 0 && res >= 0;
+    int pos_over = a >= 0 && b >= 0 && res < 0;
+    if(!neg_over && !pos_over) {
+        printf("Overflow error with %d and %d.\n", a, b);
+        exit(0);
+    }
 
     return res;
 }
@@ -160,10 +156,8 @@ int add(int a, int b){
     Look on page 95 in book.
     Replace the zero with an expression that solves this.
 */
-// Define negation with ~ and safe add
 int neg(int a){
-    // Return negation of a and add 1
-    return 0;   // Replace 0 with code
+    return add(~a, 1);
 }
 
 
@@ -174,7 +168,7 @@ int neg(int a){
 */
 // Define safe subtract by safe add - negate b
 int sub(int a, int b){
-    return 0;  // Replace 0 with code
+    return add(a, neg(b));
 }
 
 
@@ -185,21 +179,23 @@ int sub(int a, int b){
 */
 // Define safe multiply by calling safe add b times
 int mul(int a, int b){
-    // Declare and initialize cumulative result
     int res = 0;
-    // Declare sign of product - initially assume positive
+    int sign = 1;
+    int min = (a < b) ? a : b;
 
-    // For efficiency - smaller number should be multiplier
-
-    // Absolute value of a and flip sign
-
-    // Absolute value of b and flip sign
-
-    // Accumulate result
-
-    // Set sign to output
-
-    return res;
+    if(a < 0) {
+        a = neg(a);
+        sign = neg(sign);
+    }
+    if(b < 0) {
+        b = neg(b);
+        sign = neg(sign);
+    }
+    while(min != 0) {
+        res = add(res,(a > b) ? a : b);
+        min = sub(b,1);
+    }
+    return (sign < 0) ? neg(res) : res;
 }
 
 
@@ -212,7 +208,7 @@ int div(int a, int b){
     // Declare int to count how many times can b be subtracted from a
     int cnt = 0;
     // Declare sign
-
+    
     // Absolute value of a and flip sign
 
     // Absolute value of b and flip sign
