@@ -1,5 +1,4 @@
 /*
-
     Safe integer calculator - warns if an overflow or
     underflow error occurs.
 
@@ -21,7 +20,6 @@
     The _add() function should only use bitwise operators.  All
     other functions can call functions necessary to complete the
     required operation.  I added some hints above functions.
-
 */
 
 #include <stdio.h>
@@ -36,7 +34,7 @@ int div(int a, int b);
 int mod(int a, int b);
 int pow(int a, int b);
 int convert(char *input);
-
+void menu();
 
 // Main
 int main(int argc, char *argv[]){
@@ -50,7 +48,7 @@ int main(int argc, char *argv[]){
     // Uncomment code below when done
 
     // Loop until quit is selected
-/*    while(input[0] != 'q' && input[0] != 'Q'){
+    while(input[0] != 'q' && input[0] != 'Q'){
         // Show menu choices
         menu();
         // Print prompt with running total
@@ -97,7 +95,7 @@ int main(int argc, char *argv[]){
         }
 
     }
-*/
+
 
     return 0;
 }
@@ -120,7 +118,6 @@ void menu(){
 
 // Add operation using only bitwise operators
 int _add(int a, int b){
-    // Loop until b is zero
     while(b != 0) {
         int c = a & b; /* carry bit */
         a = a ^ b; /* add stuff together */
@@ -129,51 +126,30 @@ int _add(int a, int b){
     return a;
 }
 
-
-/*
-    Safe add() should call _add() and check for both
-    overflow and underflow errors.
-*/
 // Safe add operation
 int add(int a, int b){
-    // Declare int for result
-    int res = 0;
-    res = _add(a,b);
-    // Check for overflow - look at page 90 in book
-    int neg_over = a <  0 && b < 0 && res >= 0;
-    int pos_over = a >= 0 && b >= 0 && res < 0;
-    if(!neg_over && !pos_over) {
+    int res = _add(a,b);
+    int neg_over = a < 0 && b < 0 && res > 0;
+    int pos_over = a > 0 && b > 0 && res < 0;
+    if(neg_over || pos_over) 
         printf("Overflow error with %d and %d.\n", a, b);
-        exit(0);
-    }
-
     return res;
 }
 
-
-/*
-    Negate a by using a bitwise operator and safe add().
-    Look on page 95 in book.
-    Replace the zero with an expression that solves this.
-*/
+// Negate opperation
 int neg(int a){
     return add(~a, 1);
 }
 
-
-// Define safe subtract by safe add - negate b
+// Subtract opperation
 int sub(int a, int b){
     return add(a, neg(b));
 }
-
-
 
 // Define safe multiply by calling safe add b times
 int mul(int a, int b){
     int res = 0;
     int sign = 1;
-    int min = (a < b) ? a : b;
-
     if(a < 0) {
         a = neg(a);
         sign = neg(sign);
@@ -182,16 +158,16 @@ int mul(int a, int b){
         b = neg(b);
         sign = neg(sign);
     }
+    int min = (a < b) ? a : b;
+    int max = (a > b) ? a : b;
     while(min != 0) {
-        res = add(res,(a > b) ? a : b);
-        min = sub(b,1);
+        res = add(res,max);
+        min = sub(min,1);
     }
     return (sign < 0) ? neg(res) : res;
 }
 
-
-
-// Define safe divide by calling safe subtract b times
+// Divide opperation
 int div(int a, int b){
     int cnt = 0;
     int sign = 1;
@@ -203,74 +179,59 @@ int div(int a, int b){
         b = neg(b);
         sign = neg(sign);
     }
-    while(a < 0) {
+    while(a > 0) {
         a = sub(a,b);
         cnt = add(cnt,1);
     }
-    return (sign < 0) ? neg(cnt) : cnt;
+    cnt = (sign < 0) ? neg(cnt) : cnt;
+    return cnt;
 }
 
-
-/*
-    Safe mod() repeatedly subtracts b from a until a < b, returning a.
-*/
-// Define safe modulus by calling safe subtract
-int mod(int a, int b){
-    a = neg(a);
-    b = neg(b);
+// Modulus opperation
+int mod(int a, int b) {
+    if(a < 0)
+        a = neg(a);
+    if(b < 0)
+        b = neg(b);
     while(a >= b)
         a = sub(a,b);
     return a;
 }
 
-
-/*
-    Safe pow() calculates as the math pow function but
-    only uses the safe operations.
-        res = n^exp
-    Loop until exp is zero
-        res = res * n
-        exp = exp - 1
-    Remember the special case for n^0
-
-*/
-// Define safe pow by calling safe multiply exp times
+// pow function
 int pow(int n, int exp){
     int res = 0;
+    if(exp == 0)
+        return 1;
     while(exp != 0) {
-        res = mult(res*n);
+        res = mul(res,n);
         exp = sub(exp,1);
     }
-    return (exp == 0) ? 1 : res;
+    return res;
 }
 
-/*
-    This function extracts the integer value from the input string.
-        If input = "+ -123", res = -123.
-        If input = "* 987654", res = 987654.
-    The best way to solve complicated problems is to work them out
-    on paper first.
-*/
 // Extract the integer from the input string and convert to int
 int convert(char *input){
-    int res = 0, sign = 1, i = 0, j = 0;
-    char buffer[sizeof(input) / sizeof(char)];
-    if(input[2] == '-')
-        sign = neg(sign);
-    while(input != '\0') {
-        if (input[i] >= '0' && input[i] <= '9') {
-            buffer[add(j,1)] = input[i];
+    int res = 0;
+    int sign = (input[2] == '-') ? -1 : 1;
+    int i = (sign > 0) ? 2 : 3;
+    int j = 0;
+    char buffer[32];
+    /* Read input into a buffer array. */
+    while(input[i] != '\0') {
+        if(input[i] >= '0' && input[i] <= '9') {
+            buffer[j] = input[i];
             j = add(j,1);
         }
         i = add(i,1);
+    } 
+    buffer[j] = '\0';
+    i = 0;
+    while(i < j) {
+        res = add(mul(res,10), sub(buffer[i], 48));
+        i = add(i,1);
     }
-    i = j;
-    j = 0;
-    while(i >= 0 ) {
-        res = add(res,mult(buffer[i],pow(10,j)));
-        i = sub(i,1);
-        j = add(j,1);
-    }
+    printf("%d\n", res);
     return (sign < 0) ? neg(res) : res;
 }
 
