@@ -161,22 +161,13 @@ int neg(int a){
 }
 
 
-/*
-    Remember that subtraction is the same as addition
-    if you negate one of the operands.
-    Replace the zero with an expression that solves this.
-*/
 // Define safe subtract by safe add - negate b
 int sub(int a, int b){
     return add(a, neg(b));
 }
 
 
-/*
-    Safe mul() uses an iterative call to safe add()
-    to calculate a product. Remember that
-        5 x 4 = 5 + 5 + 5 + 5 = 20
-*/
+
 // Define safe multiply by calling safe add b times
 int mul(int a, int b){
     int res = 0;
@@ -199,25 +190,24 @@ int mul(int a, int b){
 }
 
 
-/*
-    Safe div() repeatedly subtracts b from a, counting the
-    number of subtractions until a < b, which it returns.
-*/
+
 // Define safe divide by calling safe subtract b times
 int div(int a, int b){
-    // Declare int to count how many times can b be subtracted from a
     int cnt = 0;
-    // Declare sign
-    
-    // Absolute value of a and flip sign
-
-    // Absolute value of b and flip sign
-
-    // loop to calculate how many times can b be subtracted from a
-
-    // Set sign to output
-
-    return cnt;
+    int sign = 1;
+    if(a < 0) {
+        a = neg(a);
+        sign = neg(sign);
+    }
+    if(b < 0) {
+        b = neg(b);
+        sign = neg(sign);
+    }
+    while(a < 0) {
+        a = sub(a,b);
+        cnt = add(cnt,1);
+    }
+    return (sign < 0) ? neg(cnt) : cnt;
 }
 
 
@@ -226,12 +216,10 @@ int div(int a, int b){
 */
 // Define safe modulus by calling safe subtract
 int mod(int a, int b){
-    // Absolute value of a
-
-    // Absolute value of b
-
-    // Find remainder by repeated subtraction a - b
-
+    a = neg(a);
+    b = neg(b);
+    while(a >= b)
+        a = sub(a,b);
     return a;
 }
 
@@ -248,13 +236,13 @@ int mod(int a, int b){
 */
 // Define safe pow by calling safe multiply exp times
 int pow(int n, int exp){
-    // Declare int for result of n^exp
     int res = 0;
-    // Loop and multiply to calculate n^exp
-
-    return res;
+    while(exp != 0) {
+        res = mult(res*n);
+        exp = sub(exp,1);
+    }
+    return (exp == 0) ? 1 : res;
 }
-
 
 /*
     This function extracts the integer value from the input string.
@@ -265,32 +253,24 @@ int pow(int n, int exp){
 */
 // Extract the integer from the input string and convert to int
 int convert(char *input){
-    // Declare int for result extracted from input
-    int res = 0;
-    // Declare int for sign of result
-
-    // Declare two iterators
-
-    // Declare a buffer for numeric chars
-
-    // Set error to zero - no error found yet
-
-    // Check for space in element 1
-
-    // Check for negative integer at element 2
-
-    // Loop to copy all numeric chars to buffer
-    // i is iterator for input string and should start at first numeric char
-    // j is iterator for buffer where numeric chars are copied
-    // This must test for chars between 0 and 9
-
-    // i gets position of last numeric char in buffer
-
-    // j is now used for pow function - start at zero
-
-    // Construct integer from buffer using pow j increases and i decreases
-
-    // Set sign for output
-    return res;
+    int res = 0, sign = 1, i = 0, j = 0;
+    char buffer[sizeof(input) / sizeof(char)];
+    if(input[2] == '-')
+        sign = neg(sign);
+    while(input != '\0') {
+        if (input[i] >= '0' && input[i] <= '9') {
+            buffer[add(j,1)] = input[i];
+            j = add(j,1);
+        }
+        i = add(i,1);
+    }
+    i = j;
+    j = 0;
+    while(i >= 0 ) {
+        res = add(res,mult(buffer[i],pow(10,j)));
+        i = sub(i,1);
+        j = add(j,1);
+    }
+    return (sign < 0) ? neg(res) : res;
 }
 
