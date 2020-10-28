@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 #include <string.h>
-
+#include <stdlib.h>
 
 //int input_to_decimal(char *input);
 unsigned int bin_to_uint(char *input);
@@ -40,13 +40,15 @@ int error = 0;
 int main(){
 
     char input[50];
-    unsigned int n = 0;
+    unsigned int n;
     char output[50];
+
+
 
     // Write code here to test your functions
     // Uncomment code below when done
 
-/*    printf("Enter a binary, octal, decimal or hexadecimal number\n");
+    printf("Enter a binary, octal, decimal or hexadecimal number\n");
     printf("convert > ");
     gets(input);
 
@@ -80,39 +82,55 @@ int main(){
     printf("The octal value of %s is %s\n", input, output);
     uint_to_bin(n, output);
     printf("The binary value of %s is %s\n", input, output);
-*/
+
 
     return 0;
 }
 
-
-/*
-    This function converts the value part of the hex
-    string to an unsigned integer value.  The first
-    two chars are 0x, which tells that the string is
-    in hex.  Start processing the value at index 2 until
-    the null, calculating the int value as you would on
-    paper.  Try on paper first.
-*/
 // Convert a hexadecimal char array to uint
 unsigned int hex_to_uint(char *input){
     // Declare result and set to zero
     unsigned int res = 0;
     // Declare and set multiplier to 1
     unsigned int mult = 1;
-    // Declare iterator
     int i;
     // Loop through value part of input string
-    for( i = 2; i < strlen(input); i++) {
+    for( i = strlen(input) - 1; i > 1; i--) {
         // If between 0 and 9 add 0 to 9 to res with multiplier
-        if(*(input + i) >= 0 && *(input + i) <= 9) {
-            res += ( *(input + i) * mult); 
+        if(input[i] >= '0' && input[i] <= '9') {
+            res += ((input[i] - '0') * mult); 
+        }
+        // If between A and F add 10 to 15 to res with multiplier
+        else if( input[i] >= 65 && input[i] <= 70) {
+            res += ((( input[i] - '0') - 55) * mult); 
+        }
+        // Error - exit
+        else {
+            printf("Error in hex_to_uint(). Exiting.\n");
+            exit(0);
+        }
+        // Advance multiplier to next position value
+        mult *= 16;
+    }
+    return res;
+}
+
+// Convert a unsigned integer char array to uint
+unsigned int dec_to_uint(char *input){
+    
+    // Declare result and set to zero
+    unsigned int res = 0;
+    // Declare and set multiplier to 1
+    unsigned int mult = 1;
+
+    int i;
+    // Loop through value part of input string
+    for( i = strlen(input) - 1; i >= 0; i--) {
+        // If between 0 and 9 add 0 to 9 to res with multiplier
+        if(input[i] >= '0' && input[i] <= '9') {
+            res += ((input[i] - '0') * mult); 
         }
     
-        // If between A and F add 10 to 15 to res with multiplier
-        if(*(input + i) >= 65 && *(input + i) <= 70) {
-            res += (( *(input + i) - 55) * mult); 
-        }
         // Error - exit
         else {
             printf("Error in hex_to_uint(). Exiting.\n");
@@ -123,89 +141,137 @@ unsigned int hex_to_uint(char *input){
         mult *= 10;
     }
     return res;
+
 }
 
-
-/*
-    Copy hex_to_uint() and modify for decimal input.
-*/
-// Convert a unsigned integer char array to uint
-unsigned int dec_to_uint(char *input){
-    // Declare result and set to zero
-    unsigned int res = 0;
-    
-    return res;
-}
-
-
-/*
-    Copy dec_to_uint() and modify for octal input.
-*/
 // Convert a octal char array to uint
 unsigned int oct_to_uint(char *input){
     // Declare result and set to zero
     unsigned int res = 0;
+    unsigned int mult = 1;
+    int i;
 
+    for( i = strlen(input) - 1; i > 0; i--) {
+        // If between 0 and 7:
+        if( input[i] >= '0' && input[i] <= '7') {
+            res += ((input[i] - '0') * mult);
+        }
+        else {
+            printf("Error in oct_to_uint. Exiting.\n");
+            exit(0);
+        }
 
-
+        mult *= 8;
+    } 
     return res;
 }
 
-
-/*
-    Copy oct_to_uint() and modify for binary input.
-*/
 // Convert a binary char array to unsigned int
 unsigned int bin_to_uint(char *input){
     // Declare result and set to zero
     unsigned int res = 0;
+    unsigned int mult = 1;
 
+    int i;
+
+    for( i = strlen(input) - 1; i > 0; i--) {
+        // If between 0 and 1:
+        if ( input[i] >= '0' && input[i] <= '1') {
+            res += ((input[i] - '0') * mult);
+        }
+        // Error - Exit
+        else {
+            printf("Error in bin_to_uint(). Exiting.\n");
+            exit(0);
+        }
+        mult *= 2;
+    }
     return res;
 }
 
 
-/*
-    This function converts from unsigned int to a hex
-    char array.  Try this on paper before coding.
-*/
 // Convert a unsigned integer char array to hexadecimal
 void uint_to_hex(unsigned int n, char *output){
     // Declare a uint for remainder
 
+    unsigned int rem;
     // Declare an int for division
 
+    
     // Declare a char array buffer
+    char buffer[55];
 
     // Use a loop to generate a hex string - string will be reverse
-
+    int i = 0;
+    while (n > 16) {
+        
+        buffer[i++] = n % 16;
+        n /= 16;
+    }
+    
     // Get last hex char
-
+    buffer[i++] = n + '0';
     // Put null at end of buffer
-
+    buffer[i] = '\0';
     // Copy 0x to output string
-
+    strcpy("0x", output);
     // Copy chars from buffer in reverse order to output string
+    for( i = 0; i < strlen(buffer); i++) 
+        output[i+2] = buffer[strlen(buffer) - i - 1];
+    output[i] = '\0';
 
-    return;
 }
 
-
-/*
-    Copy uint_to_hex() and modify for octal
-*/
 // Convert a unsigned integer char array to octal
 void uint_to_oct(unsigned int n, char *output){
-
-    return;
+// Declare a uint for remainder
+    unsigned int rem;
+    // Declare an int for division
+    int div;
+    // Declare a char array buffer
+    char buffer[20];
+    // Use a loop to generate a hex string - string will be reverse
+    int i = 0;
+    while (n > 7) {
+        buffer[i++] = n % 8 + '0';
+        n /= 8;
+    }
+    
+    // Get last hex char
+    buffer[i++] = n + '0';
+    // Put null at end of buffer
+    buffer[i] = '\0';
+    // Copy 0x to output string
+    strcpy("o", output);
+    // Copy chars from buffer in reverse order to output string
+    for( i = 0; i < strlen(buffer); i++) 
+        output[i+1] = buffer[strlen(buffer) - i - 1];
+    output[i] = '\0';
 }
 
-
-/*
-    Copy uint_to_oct() and modify for binary
-*/
 // Convert a unsigned integer char array to binary
 void uint_to_bin(unsigned int n, char *output){
-
-    return;
+    unsigned int rem = n;
+    // Declare an int for division
+    unsigned int div = 2;
+    // Declare a char array buffer
+    char buffer[20];
+    // Use a loop to generate a bin string - string will be reverse
+    int i = 0;
+    while (n > 1) {
+        buffer[i++] = rem % div + '0';
+        rem /= div;
+    }
+    
+    // Get last bin char
+    buffer[i++] = rem + '0';
+    // Put null at end of buffer
+    buffer[i] = '\0';
+    // Copy b to output string
+    strcpy("b", output);
+    // Copy chars from buffer in reverse order to output string
+    for( i = 0; i < strlen(buffer); i++) 
+        output[i] = buffer[strlen(buffer) - i - 1];
+    output[i] = '\0';
 }
 
