@@ -200,10 +200,10 @@ int mod(int a, int b) {
 
 // pow function
 int pow(int n, int exp){
-    int res = 0;
+    int res = n;
     if(exp == 0)
         return 1;
-    while(exp != 0) {
+    while(exp != 1) {
         res = mul(res,n);
         exp = sub(exp,1);
     }
